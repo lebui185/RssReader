@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_today"
+            android:title="Today"/>
+        <item
+            android:id="@+id/nav_recent_read"
+            android:title="Recent read" />
+        <item
+            android:id="@+id/nav_bookmark"
+            android:title="Bookmark"/>
+        <item
+            android:id="@+id/nav_manage_subscription"
+            android:title="Manage Subscription" />
+        <item
+            android:id="@+id/nav_sign_out"
+            android:title="Sign out" />
+    </group>
+</menu>

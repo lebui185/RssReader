@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="8dp"
+    android:paddingTop="8dp">
+
+    <ImageView
+        android:id="@+id/rss_item_image"
+        android:layout_width="96dp"
+        android:layout_height="72dp"
+        android:layout_marginRight="16dp" />
+
+    <TextView
+        android:id="@+id/rss_item_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/rss_item_image"
+        android:text="Title"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/rss_item_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rss_item_title"
+        android:layout_toRightOf="@id/rss_item_image"
+        android:text="Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam "
+        android:textSize="16sp" />
+</RelativeLayout>
