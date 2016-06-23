@@ -31,8 +31,7 @@ import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements SignInFragment.OnSignInListener,
     RssItemAdapter.RssItemClickListener,
-    RssChannelAdapter.RssChannelClickListener,
-    AsyncResponse {
+    RssChannelAdapter.RssChannelClickListener {
 
     private DrawerLayout mDrawerLayout;
     private Toolbar mToolbar;
@@ -59,59 +58,59 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        // search setup
-        Intent searchIntent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(searchIntent.getAction())) {
-            String query = searchIntent.getStringExtra(SearchManager.QUERY);
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent(intent);
+    }
 
-            RetrieveFeedTask apiObj = new RetrieveFeedTask();
-            apiObj.delegate = this;
-            apiObj.execute(query);
+    private void handleIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+
+            FetchRssChannelTask fetchRssChannelTask = new FetchRssChannelTask(query);
+            fetchRssChannelTask.setOnCompleteListener(new BaseAsyncTask.OnCompleteListener<List<RssChannel>>() {
+                @Override
+                public void onComplete(List<RssChannel> channels) {
+                    RssChannelListFragment channelListFragment = RssChannelListFragment.newInstance();
+                    mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, channelListFragment).commit();
+                    mFragmentManager.executePendingTransactions();
+                    channelListFragment.setRssChannelList(channels);
+                }
+             });
+
+            fetchRssChannelTask.setOnExceptionListener(new BaseAsyncTask.OnExceptionListener() {
+                @Override
+                public void onException(Exception exception) {
+                    Toast.makeText(MainActivity.this, "Oops! Something's wrong", Toast.LENGTH_SHORT).show();
+                    exception.printStackTrace();
+                }
+            });
+
+            fetchRssChannelTask.execute();
         }
     }
 
     @Override
-    public void postResult(String asyncresult) {
-        RssChannelListFragment channelListFragment = RssChannelListFragment.newInstance();
-        mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, channelListFragment).commit();
-        mFragmentManager.executePendingTransactions();
-
-        List<RssChannel> rssChannels = new ArrayList<>();
-        try {
-            JSONObject  jsonRootObject = new JSONObject(asyncresult);
-
-            //Get the instance of JSONArray that contains JSONObjects
-            JSONArray jsonArray = jsonRootObject.optJSONArray("results");
-
-            //Iterate the jsonArray and print the info of JSONObjects
-            for(int i=0; i < jsonArray.length(); i++){
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-                String feedId = jsonObject.optString("feedId").toString();
-                String title = jsonObject.optString("title").toString();
-                String website = jsonObject.optString("website").toString();
-                String description = jsonObject.optString("description").toString();
-                String iconUrl = jsonObject.optString("iconUrl").toString();
-                String visualUrl = jsonObject.optString("visualUrl").toString();
-
-                rssChannels.add(new RssChannel(feedId, title, website, description, iconUrl, visualUrl));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        channelListFragment.setRssChannelList(rssChannels);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_toolbar, menu);
 
-        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchView.setIconified(true);
+                searchView.clearFocus();
+                menu.findItem(R.id.action_search).collapseActionView();
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
 
         return super.onCreateOptionsMenu(menu);
     }
