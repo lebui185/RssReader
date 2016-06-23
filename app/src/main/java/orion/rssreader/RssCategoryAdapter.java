@@ -11,9 +11,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-/**
- * Created by Ho Vu Anh Khoa on 22/06/2016.
- */
 public class RssCategoryAdapter extends RecyclerView.Adapter<RssCategoryAdapter.ViewHolder> {
     private Context mContext;
     private List<Object> mRssCategoryList;
@@ -42,11 +39,11 @@ public class RssCategoryAdapter extends RecyclerView.Adapter<RssCategoryAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Object rss = mRssCategoryList.get(position);
-        if(rss instanceof RssCategory){
+        if (rss instanceof RssCategory) {
             RssCategory category = (RssCategory) rss;
             holder.mIconItem.setImageResource(R.drawable.rss_folder);
             holder.mRssName.setText(category.getName());
-        }else if (rss instanceof RssChannel){
+        } else if (rss instanceof RssChannel) {
             RssChannel channel = (RssChannel) rss;
             holder.mIconItem.setImageResource(R.drawable.rss_icon);
             holder.mRssName.setText(channel.getTitle());
@@ -58,7 +55,7 @@ public class RssCategoryAdapter extends RecyclerView.Adapter<RssCategoryAdapter.
         return mRssCategoryList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView mRssName;
         public ImageView mIconItem;
         public ImageButton mIconRemove;

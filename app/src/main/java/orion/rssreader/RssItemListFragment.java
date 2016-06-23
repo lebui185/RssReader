@@ -64,8 +64,7 @@ public class RssItemListFragment extends Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         if (mSubscribeEnabled) {
             menu.findItem(R.id.action_subscribe).setVisible(true);
-        }
-        else {
+        } else {
             menu.findItem(R.id.action_subscribe).setVisible(false);
         }
         super.onPrepareOptionsMenu(menu);

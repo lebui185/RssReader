@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class RssChannelAdapter extends RecyclerView.Adapter<RssChannelAdapter.ViewHolder>   {
+public class RssChannelAdapter extends RecyclerView.Adapter<RssChannelAdapter.ViewHolder> {
     private Context mContext;
     private List<RssChannel> mRssChannelList;
     private RssChannelClickListener mRssChannelClickListener;
@@ -46,7 +46,7 @@ public class RssChannelAdapter extends RecyclerView.Adapter<RssChannelAdapter.Vi
         return mRssChannelList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView mRssChannelName;
         public ImageButton mSubscribeChannelButton;
 

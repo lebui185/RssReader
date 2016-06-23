@@ -9,11 +9,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import java.util.List;
 
-public class RssChannelListFragment extends Fragment{
+public class RssChannelListFragment extends Fragment {
     private RecyclerView mRssChannelRecycler;
+    private ProgressBar mProgressBar;
 
     public RssChannelListFragment() {
         // Required empty public constructor
@@ -37,6 +39,15 @@ public class RssChannelListFragment extends Fragment{
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mRssChannelRecycler = (RecyclerView) getActivity().findViewById(R.id.channel_recycler);
+        mProgressBar = (ProgressBar) getActivity().findViewById(R.id.rss_channel_list_progressBar);
+    }
+
+    public void showProgress() {
+        mProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    public void hideProgress() {
+        mProgressBar.setVisibility(View.GONE);
     }
 
     @Override

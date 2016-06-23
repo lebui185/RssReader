@@ -1,6 +1,5 @@
 package orion.rssreader;
 
-import android.accounts.NetworkErrorException;
 import android.os.AsyncTask;
 
 import java.io.IOException;
@@ -73,12 +72,10 @@ public abstract class BaseAsyncTask<Params, Progress, Result> extends AsyncTask<
         }
         try {
             return doAsyncTask();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             mIOException = e;
             return null;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             mException = e;
             return null;
         }
@@ -98,12 +95,10 @@ public abstract class BaseAsyncTask<Params, Progress, Result> extends AsyncTask<
                 mOnIOExceptionListener.onIOException(mIOException);
             if (mOnExceptionListener != null)
                 mOnExceptionListener.onException(mIOException);
-        }
-        else if (mException != null) {
+        } else if (mException != null) {
             if (mOnExceptionListener != null)
                 mOnExceptionListener.onException(mException);
-        }
-        else {
+        } else {
             if (mOnCompleteListener != null) {
                 mOnCompleteListener.onComplete(result);
             }

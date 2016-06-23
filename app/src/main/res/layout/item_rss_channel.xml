@@ -12,7 +12,7 @@
         android:layout_gravity="center_vertical"
         android:layout_height="match_parent"
         android:text="Lorem channel"
-        android:textSize="20sp"/>
+        android:textSize="16sp"/>
 
     <ImageButton
         android:id="@+id/subscribe_channel_button"

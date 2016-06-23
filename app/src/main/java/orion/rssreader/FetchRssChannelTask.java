@@ -42,8 +42,7 @@ public class FetchRssChannelTask extends BaseAsyncTask<Void, Void, List<RssChann
             while ((line = bufferedReader.readLine()) != null) {
                 stringBuilder.append(line).append("\n");
             }
-        }
-        finally {
+        } finally {
             if (connection != null) {
                 connection.disconnect();
             }
@@ -64,7 +63,7 @@ public class FetchRssChannelTask extends BaseAsyncTask<Void, Void, List<RssChann
         JSONArray jsonArray = jsonRootObject.optJSONArray("results");
 
         //Iterate the jsonArray and print the info of JSONObjects
-        for(int i=0; i < jsonArray.length(); i++){
+        for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject jsonObject = jsonArray.getJSONObject(i);
 
             String feedId = jsonObject.optString("feedId").toString();

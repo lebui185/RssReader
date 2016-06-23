@@ -1,6 +1,7 @@
 package orion.rssreader;
 
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,9 @@ public class SignInFragment extends Fragment implements View.OnClickListener {
     private TextView mUsernameText;
     private TextView mPasswordText;
     private OnSignInListener mOnSignInListener;
+
+    private ProgressDialog mProgressDialog;
+
 
     public SignInFragment() {
         // Required empty public constructor
@@ -36,6 +40,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
 
         }
@@ -53,23 +58,30 @@ public class SignInFragment extends Fragment implements View.OnClickListener {
         super.onActivityCreated(savedInstanceState);
         mOnSignInListener = (OnSignInListener) getActivity();
 
-        mUsernameText = (TextView)getActivity().findViewById(R.id.username_text);
-        mPasswordText = (TextView)getActivity().findViewById(R.id.password_text);
-        mSignInButton = (Button)getActivity().findViewById(R.id.sign_in_button);
+        mProgressDialog = new ProgressDialog(getContext());
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setMessage("Signing in");
+
+        mUsernameText = (TextView) getActivity().findViewById(R.id.signin_email_text);
+        mPasswordText = (TextView) getActivity().findViewById(R.id.signin_password_text);
+        mSignInButton = (Button) getActivity().findViewById(R.id.sign_in_button);
         mSignInButton.setOnClickListener(this);
     }
 
+    public void showProgress() {
+        mProgressDialog.show();
+    }
+
+    public void hideProgress() {
+        mProgressDialog.dismiss();
+    }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.sign_in_button:
-                SignIn();
+                mOnSignInListener.onSignIn(mUsernameText.getText().toString(), mPasswordText.getText().toString());
                 break;
         }
-    }
-
-    private void SignIn() {
-        mOnSignInListener.onSignIn(mUsernameText.getText().toString(), mPasswordText.getText().toString());
     }
 }
