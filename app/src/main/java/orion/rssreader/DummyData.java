@@ -8,14 +8,14 @@ public class DummyData {
     public static List<RssItem> getTodayFeeds() {
         List<RssItem> rssItems = new ArrayList<>();
 
-        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, "Lorem Ipsum", "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
 
         return rssItems;
     }
@@ -40,15 +40,15 @@ public class DummyData {
 
         String feedTitle = channel.getTitle();
 
-        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
-        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
+//        rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
 
         return rssItems;
     }
@@ -86,7 +86,7 @@ public class DummyData {
     public static List<RssItem> getRecentFeeds() {
         List<RssItem> rssItems = null;
 
-        rssItems.add(new RssItem(1, "", ""));
+        //rssItems.add(new RssItem(1, "", ""));
 
         return rssItems;
     }
@@ -94,7 +94,7 @@ public class DummyData {
     public static List<RssItem> getBookmarkFeeds() {
         List<RssItem> rssItems = null;
 
-        rssItems.add(new RssItem(1, "", ""));
+        //rssItems.add(new RssItem(1, "", ""));
 
         return rssItems;
     }
@@ -102,7 +102,7 @@ public class DummyData {
     public static List<RssItem> getFeeds(String category) {
         List<RssItem> rssItems = null;
 
-        rssItems.add(new RssItem(1, "", ""));
+       //rssItems.add(new RssItem(1, "", ""));
 
         return rssItems;
     }

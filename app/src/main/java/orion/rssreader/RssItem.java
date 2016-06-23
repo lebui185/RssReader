@@ -5,16 +5,18 @@ package orion.rssreader;
 public class RssItem {
     private int mImageResource;
     private String mTitle;
+    private String mLink;
     private String mDescription;
 
     public RssItem() {
 
     }
 
-    public RssItem(int mImageResource, String mTitle, String mDescription) {
+    public RssItem(int mImageResource, String mTitle, String mDescription, String mLink) {
         this.mImageResource = mImageResource;
         this.mTitle = mTitle;
         this.mDescription = mDescription;
+        this.mLink = mLink;
     }
 
     public int getImageResource() {
@@ -39,5 +41,13 @@ public class RssItem {
 
     public void setDescription(String description) {
         mDescription = description;
+    }
+
+    public String getmLink() {
+        return mLink;
+    }
+
+    public void setmLink(String mLink) {
+        this.mLink = mLink;
     }
 }

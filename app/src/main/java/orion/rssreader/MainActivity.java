@@ -220,10 +220,14 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
 
     @Override
     public void onRssItemClick(View view, int position, RssItem item) {
-        RssItemDetailFragment detailFragment = RssItemDetailFragment.newInstance();
-        mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, detailFragment).commit();
+//        RssItemDetailFragment detailFragment = RssItemDetailFragment.newInstance();
+//        mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, detailFragment).commit();
+//        mFragmentManager.executePendingTransactions();
+//        detailFragment.setRss(item);
+        WebViewFragment webFragment = WebViewFragment.newInstance();
+        mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, webFragment).commit();
         mFragmentManager.executePendingTransactions();
-        detailFragment.setRss(item);
+        webFragment.setWeb(item.getmLink());
     }
 
     @Override
@@ -232,7 +236,32 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
             RssItemListFragment fragment = RssItemListFragment.newInstance(true);
             mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
             mFragmentManager.executePendingTransactions();
-            fragment.setRssList(DummyData.getFeeds(channel));
+
+            FetchRssFeedTask fetchRssFeedTask = new FetchRssFeedTask(channel.getFeedId());
+//            FetchRssFeedTask.setOnCompleteListener(new BaseAsyncTask.OnCompleteListener<List<RssItem>>() {
+//                @Override
+//                public void onComplete(List<RssItem> feeds) {
+//                RssItemListFragment fragment = RssItemListFragment.newInstance(true);
+//                mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
+//                mFragmentManager.executePendingTransactions();
+//                fragment.setRssList(feeds);
+//                }
+//            });
+//
+//            fetchRssFeedTask.setOnExceptionListener(new BaseAsyncTask.OnExceptionListener() {
+//                @Override
+//                public void onException(Exception exception) {
+//                    Toast.makeText(MainActivity.this, "Oops! Something's wrong", Toast.LENGTH_SHORT).show();
+//                    exception.printStackTrace();
+//                }
+//            });
+            try {
+                fragment.setRssList(fetchRssFeedTask.execute().get());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
         }
         else if (view instanceof ImageButton) {
             Toast.makeText(MainActivity.this, "Add channel " + position + " to bookmark", Toast.LENGTH_SHORT).show();
