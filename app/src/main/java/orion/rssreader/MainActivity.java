@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -14,7 +15,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,17 +22,20 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity implements SignInFragment.OnSignInListener,
-    RssItemAdapter.RssItemClickListener,
-    RssChannelAdapter.RssChannelClickListener ,
-    RssCategoryAdapter.RssCategoryClickListener{
+public class MainActivity extends AppCompatActivity implements
+        SignInFragment.OnSignInListener,
+        SignUpFragment.OnSignUpListener,
+        RssItemAdapter.RssItemClickListener,
+        RssChannelAdapter.RssChannelClickListener,
+        RssCategoryAdapter.RssCategoryClickListener {
 
     private DrawerLayout mDrawerLayout;
     private Toolbar mToolbar;
@@ -41,21 +44,48 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
     private TextView mProfileUsername;
     private FragmentManager mFragmentManager;
 
-    private TextView test;
+    private SignInFragment mSignInFragment;
+    private SignUpFragment mSignUpFragment;
+    private RssChannelListFragment mRssChannelListFragment;
+
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setupWidgets();
 
+        // logic init
+        mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    mProfileUsername.setText(user.getEmail());
+                    mNavigationView.getMenu().clear();
+                    mNavigationView.inflateMenu(R.menu.menu_profile_signed_in);
+                    mDrawerLayout.openDrawer(GravityCompat.START);
+                } else {
+                    // User is signed out
+                    mProfileUsername.setText("");
+                    mNavigationView.getMenu().clear();
+                    mNavigationView.inflateMenu(R.menu.menu_profile_not_signed);
+                    mDrawerLayout.openDrawer(GravityCompat.START);
+                }
+                // ...
+            }
+        };
+        // UI init
+        setupWidgets();
         setSupportActionBar(mToolbar);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
         mDrawerLayout.addDrawerListener(mDrawerToggle);
 
         mFragmentManager = getSupportFragmentManager();
         mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, HomeFragment.newInstance()).commit();
-
     }
 
     @Override
@@ -64,20 +94,37 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
         handleIntent(intent);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
     private void handleIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            mRssChannelListFragment = RssChannelListFragment.newInstance();
+            mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, mRssChannelListFragment).commit();
+            mFragmentManager.executePendingTransactions();
+            mRssChannelListFragment.showProgress();
+
             String query = intent.getStringExtra(SearchManager.QUERY);
 
             FetchRssChannelTask fetchRssChannelTask = new FetchRssChannelTask(query);
             fetchRssChannelTask.setOnCompleteListener(new BaseAsyncTask.OnCompleteListener<List<RssChannel>>() {
                 @Override
                 public void onComplete(List<RssChannel> channels) {
-                    RssChannelListFragment channelListFragment = RssChannelListFragment.newInstance();
-                    mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, channelListFragment).commit();
-                    mFragmentManager.executePendingTransactions();
-                    channelListFragment.setRssChannelList(channels);
+                    mRssChannelListFragment.hideProgress();
+                    mRssChannelListFragment.setRssChannelList(channels);
                 }
-             });
+            });
 
             fetchRssChannelTask.setOnExceptionListener(new BaseAsyncTask.OnExceptionListener() {
                 @Override
@@ -117,20 +164,18 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
     }
 
     private void setupWidgets() {
-        test = (TextView)findViewById(R.id.testText);
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(
-            new NavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(MenuItem item) {
-                    selectDrawerItem(item);
-                    return false;
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem item) {
+                        selectDrawerItem(item);
+                        return false;
+                    }
                 }
-            }
         );
 
         View navigationHeader = mNavigationView.getHeaderView(0);
@@ -143,10 +188,12 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
         switch (item.getItemId()) {
             case R.id.nav_sign_in:
                 fragment = SignInFragment.newInstance();
+                mSignInFragment = (SignInFragment) fragment;
                 mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
                 break;
             case R.id.nav_sign_up:
                 fragment = SignUpFragment.newInstance();
+                mSignUpFragment = (SignUpFragment) fragment;
                 mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
                 break;
             case R.id.nav_today:
@@ -162,6 +209,9 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
                 mFragmentManager.executePendingTransactions();
                 RssCategoryListFragment rssCategoryListFragment = (RssCategoryListFragment) fragment;
                 rssCategoryListFragment.setRssCategoryList(DummyData.getCategory(DummyData.getMyCategory()));
+                break;
+            case R.id.nav_sign_out:
+                FirebaseAuth.getInstance().signOut();
                 break;
         }
 
@@ -201,16 +251,44 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
     }
 
     @Override
-    public void onSignIn(String username, String password) {
-        if (IsCorrect(username, password)) {
-            mProfileUsername.setText(username);
-            mNavigationView.getMenu().clear();
-            mNavigationView.inflateMenu(R.menu.menu_profile_signed_in);
-            mDrawerLayout.openDrawer(GravityCompat.START);
+    public void onSignIn(final String email, final String password) {
+        if (email != null && !email.isEmpty() && password != null && !password.isEmpty()) {
+            mSignInFragment.showProgress();
+            mAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (!task.isSuccessful()) {
+                                Toast.makeText(MainActivity.this, "Authentication failed.",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                            mSignInFragment.hideProgress();
+                        }
+                    });
+        } else {
+            Toast.makeText(MainActivity.this, "Empty email or password", Toast.LENGTH_SHORT).show();
         }
-        else {
+    }
 
+    @Override
+    public void onSignUp(final String email, final String password) {
+        if (email != null && !email.isEmpty() && password != null && !password.isEmpty()) {
+            mSignUpFragment.showProgress();
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (!task.isSuccessful()) {
+                                Toast.makeText(MainActivity.this, "Sign up failed.",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                            mSignUpFragment.hideProgress();
+                        }
+                    });
+        } else {
+            Toast.makeText(MainActivity.this, "Empty email or password", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     private boolean IsCorrect(String username, String password) {
@@ -236,6 +314,7 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
             RssItemListFragment fragment = RssItemListFragment.newInstance(true);
             mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
             mFragmentManager.executePendingTransactions();
+
 
             FetchRssFeedTask fetchRssFeedTask = new FetchRssFeedTask(channel.getFeedId());
 //            FetchRssFeedTask.setOnCompleteListener(new BaseAsyncTask.OnCompleteListener<List<RssItem>>() {
@@ -270,38 +349,31 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
 
     @Override
     public void onRssCategoryClick(View view, int position, Object obj) {
-        if(view instanceof ImageButton){
+        if (view instanceof ImageButton) {
             //When select the remove item button
-            if(obj instanceof RssChannel) {
+            if (obj instanceof RssChannel) {
                 RssChannel channel = (RssChannel) obj;
                 Toast.makeText(MainActivity.this, "Remove channel: " + channel.getTitle() + " from category", Toast.LENGTH_SHORT).show();
-            }
-            else if(obj instanceof RssCategory){
+            } else if (obj instanceof RssCategory) {
                 RssCategory category = (RssCategory) obj;
                 Toast.makeText(MainActivity.this, "Remove category: " + category.getName() + " from category", Toast.LENGTH_SHORT).show();
-            }
-            else{
+            } else {
                 //Nothing todo here.
             }
-        }
-        else{
-            if(obj instanceof RssChannel) {
+        } else {
+            if (obj instanceof RssChannel) {
                 RssChannel channel = (RssChannel) obj;
                 onRssChannelClick(new TextView(this), position, channel);
-            }
-            else if(obj instanceof RssCategory){
+            } else if (obj instanceof RssCategory) {
                 RssCategory category = (RssCategory) obj;
                 Fragment fragment = (RssCategoryListFragment) RssCategoryListFragment.newInstance();
                 mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
                 mFragmentManager.executePendingTransactions();
                 RssCategoryListFragment rssCategoryListFragment = (RssCategoryListFragment) fragment;
                 rssCategoryListFragment.setRssCategoryList(DummyData.getCategory(category));
-            }
-
-            else{
+            } else {
                 //Do something else
             }
         }
     }
-
 }

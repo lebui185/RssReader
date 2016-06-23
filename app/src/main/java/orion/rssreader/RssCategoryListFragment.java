@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Created by Ho Vu Anh Khoa on 22/06/2016.
  */
-public class RssCategoryListFragment extends Fragment{
+public class RssCategoryListFragment extends Fragment {
     private RecyclerView mRssCategoryRecycler;
 
     public RssCategoryListFragment() {

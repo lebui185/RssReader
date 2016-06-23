@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class RssItemAdapter extends RecyclerView.Adapter<RssItemAdapter.ViewHolder>  {
+public class RssItemAdapter extends RecyclerView.Adapter<RssItemAdapter.ViewHolder> {
     private Context mContext;
     private List<RssItem> mRssItemList;
     private RssItemClickListener mRssItemClickListener;
@@ -48,15 +48,15 @@ public class RssItemAdapter extends RecyclerView.Adapter<RssItemAdapter.ViewHold
         return mRssItemList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView mRssItemImage;
         public TextView mRssItemTitle;
         public TextView mRssItemDescription;
 
         public ViewHolder(View view) {
             super(view);
-            mRssItemImage = (ImageView)view.findViewById(R.id.rss_item_image);
-            mRssItemTitle = (TextView)view.findViewById(R.id.rss_item_title);
+            mRssItemImage = (ImageView) view.findViewById(R.id.rss_item_image);
+            mRssItemTitle = (TextView) view.findViewById(R.id.rss_item_title);
             mRssItemDescription = (TextView) view.findViewById(R.id.rss_item_description);
 
             view.setOnClickListener(new View.OnClickListener() {

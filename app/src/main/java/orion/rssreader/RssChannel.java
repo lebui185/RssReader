@@ -10,6 +10,7 @@ public class RssChannel {
 
     public RssChannel() {
     }
+
     public RssChannel(String feedId, String title, String website, String description, String iconUrl, String visualUrl) {
         this.feedId = feedId;
         this.title = title;

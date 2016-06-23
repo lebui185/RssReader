@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "286664942780",
+    "firebase_url": "https://rssreaderserver-79bd3.firebaseio.com",
+    "project_id": "rssreaderserver-79bd3",
+    "storage_bucket": "rssreaderserver-79bd3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:286664942780:android:f035767836b13c0f",
+        "android_client_info": {
+          "package_name": "orion.rssreader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "286664942780-nhanq64v0bu6o71n6j5gh1da1m515qpq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbm68AFkMBLwZsXVnenw6bYtAnMwPHYOI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
