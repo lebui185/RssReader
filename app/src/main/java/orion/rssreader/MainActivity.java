@@ -31,7 +31,8 @@ import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements SignInFragment.OnSignInListener,
     RssItemAdapter.RssItemClickListener,
-    RssChannelAdapter.RssChannelClickListener {
+    RssChannelAdapter.RssChannelClickListener ,
+    RssCategoryAdapter.RssCategoryClickListener{
 
     private DrawerLayout mDrawerLayout;
     private Toolbar mToolbar;
@@ -155,6 +156,13 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
                 RssItemListFragment rssItemListFragment = (RssItemListFragment) fragment;
                 rssItemListFragment.setRssList(DummyData.getTodayFeeds());
                 break;
+            case R.id.nav_manage_subscription:
+                fragment = (RssCategoryListFragment) RssCategoryListFragment.newInstance();
+                mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
+                mFragmentManager.executePendingTransactions();
+                RssCategoryListFragment rssCategoryListFragment = (RssCategoryListFragment) fragment;
+                rssCategoryListFragment.setRssCategoryList(DummyData.getCategory(DummyData.getMyCategory()));
+                break;
         }
 
         if (fragment != null) {
@@ -230,4 +238,41 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
             Toast.makeText(MainActivity.this, "Add channel " + position + " to bookmark", Toast.LENGTH_SHORT).show();
         }
     }
+
+    @Override
+    public void onRssCategoryClick(View view, int position, Object obj) {
+        if(view instanceof ImageButton){
+            //When select the remove item button
+            if(obj instanceof RssChannel) {
+                RssChannel channel = (RssChannel) obj;
+                Toast.makeText(MainActivity.this, "Remove channel: " + channel.getTitle() + " from category", Toast.LENGTH_SHORT).show();
+            }
+            else if(obj instanceof RssCategory){
+                RssCategory category = (RssCategory) obj;
+                Toast.makeText(MainActivity.this, "Remove category: " + category.getName() + " from category", Toast.LENGTH_SHORT).show();
+            }
+            else{
+                //Nothing todo here.
+            }
+        }
+        else{
+            if(obj instanceof RssChannel) {
+                RssChannel channel = (RssChannel) obj;
+                onRssChannelClick(new TextView(this), position, channel);
+            }
+            else if(obj instanceof RssCategory){
+                RssCategory category = (RssCategory) obj;
+                Fragment fragment = (RssCategoryListFragment) RssCategoryListFragment.newInstance();
+                mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
+                mFragmentManager.executePendingTransactions();
+                RssCategoryListFragment rssCategoryListFragment = (RssCategoryListFragment) fragment;
+                rssCategoryListFragment.setRssCategoryList(DummyData.getCategory(category));
+            }
+
+            else{
+                //Do something else
+            }
+        }
+    }
+
 }

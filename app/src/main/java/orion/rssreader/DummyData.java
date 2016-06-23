@@ -53,6 +53,36 @@ public class DummyData {
         return rssItems;
     }
 
+
+    public static RssCategory getMyCategory(){
+        //Dummy
+        return new RssCategory("root");
+    }
+
+    public static List<Object> getCategory(RssCategory category){
+        List<Object> rssInCategory = new ArrayList<>();
+
+        String categoryName = category.getName();
+        if(categoryName.equalsIgnoreCase("root")) {
+            rssInCategory.add(new RssChannel(null,"My_channel 1",null,null,null,null));
+            rssInCategory.add(new RssCategory("Folder 1"));
+            rssInCategory.add(new RssChannel(null,"My_channel 2",null,null,null,null));
+            rssInCategory.add(new RssChannel(null,"My_channel 3",null,null,null,null));
+            rssInCategory.add(new RssCategory("Folder 2"));
+            rssInCategory.add(new RssChannel(null,"My_channel 4",null,null,null,null));
+            rssInCategory.add(new RssChannel(null,"My_channel 5",null,null,null,null));
+            rssInCategory.add(new RssCategory("Folder 3"));
+            rssInCategory.add(new RssChannel(null,"My_channel 7",null,null,null,null));
+            rssInCategory.add(new RssCategory("Folder 4"));
+        }
+        else{
+            rssInCategory.add(new RssChannel(null,"My_channel 1",null,null,null,null));
+            rssInCategory.add(new RssChannel(null,"My_channel 2",null,null,null,null));
+            rssInCategory.add(new RssChannel(null,"My_channel 3",null,null,null,null));
+        }
+        return rssInCategory;
+    }
+
     public static List<RssItem> getRecentFeeds() {
         List<RssItem> rssItems = null;
 
