@@ -38,7 +38,7 @@ public class RssChannelAdapter extends RecyclerView.Adapter<RssChannelAdapter.Vi
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         RssChannel rssChannel = mRssChannelList.get(position);
-        holder.mRssChannelName.setText(rssChannel.getName());
+        holder.mRssChannelName.setText(rssChannel.getTitle());
     }
 
     @Override

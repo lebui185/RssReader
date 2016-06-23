@@ -23,14 +23,14 @@ public class DummyData {
     public static List<RssChannel> searchChannels(String query) {
         List<RssChannel> rssChannels = new ArrayList<>();
 
-        rssChannels.add(new RssChannel("Channel 1"));
-        rssChannels.add(new RssChannel("Channel 2"));
-        rssChannels.add(new RssChannel("Channel 3"));
-        rssChannels.add(new RssChannel("Channel 4"));
-        rssChannels.add(new RssChannel("Channel 5"));
-        rssChannels.add(new RssChannel("Channel 6"));
-        rssChannels.add(new RssChannel("Channel 7"));
-        rssChannels.add(new RssChannel("Channel 8"));
+//        rssChannels.add(new RssChannel("Channel 1"));
+//        rssChannels.add(new RssChannel("Channel 2"));
+//        rssChannels.add(new RssChannel("Channel 3"));
+//        rssChannels.add(new RssChannel("Channel 4"));
+//        rssChannels.add(new RssChannel("Channel 5"));
+//        rssChannels.add(new RssChannel("Channel 6"));
+//        rssChannels.add(new RssChannel("Channel 7"));
+//        rssChannels.add(new RssChannel("Channel 8"));
 
         return rssChannels;
     }
@@ -38,7 +38,7 @@ public class DummyData {
     public static List<RssItem> getFeeds(RssChannel channel) {
         List<RssItem> rssItems = new ArrayList<>();
 
-        String feedTitle = channel.getName();
+        String feedTitle = channel.getTitle();
 
         rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));
         rssItems.add(new RssItem(R.drawable.rss_icon, feedTitle, "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet"));

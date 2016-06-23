@@ -14,12 +14,20 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements SignInFragment.OnSignInListener,
     RssItemAdapter.RssItemClickListener,
@@ -31,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
     private ActionBarDrawerToggle mDrawerToggle;
     private TextView mProfileUsername;
     private FragmentManager mFragmentManager;
+
+    private TextView test;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +67,34 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
             RssChannelListFragment channelListFragment = RssChannelListFragment.newInstance();
             mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, channelListFragment).commit();
             mFragmentManager.executePendingTransactions();
-            channelListFragment.setRssChannelList(DummyData.searchChannels(query));
+
+            List<RssChannel> rssChannels = new ArrayList<>();
+            String output = "";
+            try {
+                output = new RetrieveFeedTask().execute(query).get();
+                JSONObject  jsonRootObject = new JSONObject(output);
+
+                //Get the instance of JSONArray that contains JSONObjects
+                JSONArray jsonArray = jsonRootObject.optJSONArray("results");
+
+                //Iterate the jsonArray and print the info of JSONObjects
+                for(int i=0; i < jsonArray.length(); i++){
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                    String feedId = jsonObject.optString("feedId").toString();
+                    String title = jsonObject.optString("title").toString();
+                    String website = jsonObject.optString("website").toString();
+                    String description = jsonObject.optString("description").toString();
+                    String iconUrl = jsonObject.optString("iconUrl").toString();
+                    String visualUrl = jsonObject.optString("visualUrl").toString();
+
+                    rssChannels.add(new RssChannel(feedId, title, website, description, iconUrl, visualUrl));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            channelListFragment.setRssChannelList(rssChannels);
         }
     }
 
@@ -73,6 +110,8 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
     }
 
     private void setupWidgets() {
+        test = (TextView)findViewById(R.id.testText);
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
