@@ -31,7 +31,8 @@ import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements SignInFragment.OnSignInListener,
     RssItemAdapter.RssItemClickListener,
-    RssChannelAdapter.RssChannelClickListener {
+    RssChannelAdapter.RssChannelClickListener,
+    AsyncResponse {
 
     private DrawerLayout mDrawerLayout;
     private Toolbar mToolbar;
@@ -64,38 +65,44 @@ public class MainActivity extends AppCompatActivity implements SignInFragment.On
         Intent searchIntent = getIntent();
         if (Intent.ACTION_SEARCH.equals(searchIntent.getAction())) {
             String query = searchIntent.getStringExtra(SearchManager.QUERY);
-            RssChannelListFragment channelListFragment = RssChannelListFragment.newInstance();
-            mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, channelListFragment).commit();
-            mFragmentManager.executePendingTransactions();
 
-            List<RssChannel> rssChannels = new ArrayList<>();
-            String output = "";
-            try {
-                output = new RetrieveFeedTask().execute(query).get();
-                JSONObject  jsonRootObject = new JSONObject(output);
-
-                //Get the instance of JSONArray that contains JSONObjects
-                JSONArray jsonArray = jsonRootObject.optJSONArray("results");
-
-                //Iterate the jsonArray and print the info of JSONObjects
-                for(int i=0; i < jsonArray.length(); i++){
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-                    String feedId = jsonObject.optString("feedId").toString();
-                    String title = jsonObject.optString("title").toString();
-                    String website = jsonObject.optString("website").toString();
-                    String description = jsonObject.optString("description").toString();
-                    String iconUrl = jsonObject.optString("iconUrl").toString();
-                    String visualUrl = jsonObject.optString("visualUrl").toString();
-
-                    rssChannels.add(new RssChannel(feedId, title, website, description, iconUrl, visualUrl));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            channelListFragment.setRssChannelList(rssChannels);
+            RetrieveFeedTask apiObj = new RetrieveFeedTask();
+            apiObj.delegate = this;
+            apiObj.execute(query);
         }
+    }
+
+    @Override
+    public void postResult(String asyncresult) {
+        RssChannelListFragment channelListFragment = RssChannelListFragment.newInstance();
+        mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, channelListFragment).commit();
+        mFragmentManager.executePendingTransactions();
+
+        List<RssChannel> rssChannels = new ArrayList<>();
+        try {
+            JSONObject  jsonRootObject = new JSONObject(asyncresult);
+
+            //Get the instance of JSONArray that contains JSONObjects
+            JSONArray jsonArray = jsonRootObject.optJSONArray("results");
+
+            //Iterate the jsonArray and print the info of JSONObjects
+            for(int i=0; i < jsonArray.length(); i++){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                String feedId = jsonObject.optString("feedId").toString();
+                String title = jsonObject.optString("title").toString();
+                String website = jsonObject.optString("website").toString();
+                String description = jsonObject.optString("description").toString();
+                String iconUrl = jsonObject.optString("iconUrl").toString();
+                String visualUrl = jsonObject.optString("visualUrl").toString();
+
+                rssChannels.add(new RssChannel(feedId, title, website, description, iconUrl, visualUrl));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        channelListFragment.setRssChannelList(rssChannels);
     }
 
     @Override

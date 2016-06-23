@@ -19,6 +19,8 @@ import java.net.URL;
 public class RetrieveFeedTask extends AsyncTask<String, Void, String> {
     String API_URL;
 
+    public AsyncResponse delegate=null;
+
     RetrieveFeedTask() {
         API_URL = "http://cloud.feedly.com/v3/search/";
     }
@@ -51,9 +53,13 @@ public class RetrieveFeedTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String response) {
-        if(response == null) {
-            response = "THERE WAS AN ERROR";
+        if(delegate!=null)
+        {
+            delegate.postResult(response);
         }
-        Log.i("INFO", response);
+        else
+        {
+            Log.e("ApiAccess", "You have not assigned AsyncResponse delegate");
+        }
     }
 }
