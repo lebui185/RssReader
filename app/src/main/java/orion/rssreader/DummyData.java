@@ -54,32 +54,29 @@ public class DummyData {
     }
 
 
-    public static RssCategory getMyCategory() {
-        //Dummy
-        return new RssCategory("root");
+    public static SubscribedFolder getRoot(){
+        SubscribedFolder category = getFolderData("root");
+        SubscribedFolder folder1 = getFolderData("Folder 1");
+        SubscribedFolder folder2 = getFolderData("Folder 2");
+        SubscribedFolder folder3= getFolderData("Folder 3");
+        SubscribedFolder folder4= getFolderData("Folder 4");
+        SubscribedFolder folder5= getFolderData("Folder 5");
+
+        category.addItem(folder1);
+        category.addItem(folder2);
+        category.addItem(folder3);
+        category.addItem(folder4);
+        folder1.addItem(folder5);
+
+        return category;
     }
 
-    public static List<Object> getCategory(RssCategory category) {
-        List<Object> rssInCategory = new ArrayList<>();
-
-        String categoryName = category.getName();
-        if (categoryName.equalsIgnoreCase("root")) {
-            rssInCategory.add(new RssChannel(null, "My_channel 1", null, null, null, null));
-            rssInCategory.add(new RssCategory("Folder 1"));
-            rssInCategory.add(new RssChannel(null, "My_channel 2", null, null, null, null));
-            rssInCategory.add(new RssChannel(null, "My_channel 3", null, null, null, null));
-            rssInCategory.add(new RssCategory("Folder 2"));
-            rssInCategory.add(new RssChannel(null, "My_channel 4", null, null, null, null));
-            rssInCategory.add(new RssChannel(null, "My_channel 5", null, null, null, null));
-            rssInCategory.add(new RssCategory("Folder 3"));
-            rssInCategory.add(new RssChannel(null, "My_channel 7", null, null, null, null));
-            rssInCategory.add(new RssCategory("Folder 4"));
-        } else {
-            rssInCategory.add(new RssChannel(null, "My_channel 1", null, null, null, null));
-            rssInCategory.add(new RssChannel(null, "My_channel 2", null, null, null, null));
-            rssInCategory.add(new RssChannel(null, "My_channel 3", null, null, null, null));
-        }
-        return rssInCategory;
+    public static SubscribedFolder getFolderData(String name) {
+        SubscribedFolder folder = new SubscribedFolder(name);
+        folder.addItem(new RssChannel(null,"My_channel 1",null,null,null,null));
+        folder.addItem(new RssChannel(null,"My_channel 2",null,null,null,null));
+        folder.addItem(new RssChannel(null,"My_channel 3",null,null,null,null));
+        return folder;
     }
 
     public static List<RssItem> getRecentFeeds() {

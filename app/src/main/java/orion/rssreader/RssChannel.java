@@ -1,6 +1,6 @@
 package orion.rssreader;
 
-public class RssChannel {
+public class RssChannel extends SubscribedItem{
     private String feedId;
     private String title;
     private String website;
@@ -66,5 +66,10 @@ public class RssChannel {
 
     public void setVisualUrl(String visualUrl) {
         this.visualUrl = visualUrl;
+    }
+
+    @Override
+    public String getName() {
+        return getTitle();
     }
 }

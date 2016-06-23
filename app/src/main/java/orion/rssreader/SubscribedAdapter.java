@@ -11,22 +11,34 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class RssCategoryAdapter extends RecyclerView.Adapter<RssCategoryAdapter.ViewHolder> {
+/**
+ * Created by Ho Vu Anh Khoa on 22/06/2016.
+ */
+public class SubscribedAdapter extends RecyclerView.Adapter<SubscribedAdapter.ViewHolder> {
     private Context mContext;
-    private List<Object> mRssCategoryList;
+    private List<SubscribedItem> mRssCategoryList;
     private RssCategoryClickListener mRssCategoryClickListener;
+    private RssCategoryLongClickListener mRssCategoryLongClickListener;
 
     public interface RssCategoryClickListener {
         void onRssCategoryClick(View view, int position, Object obj);
     }
 
-    public RssCategoryAdapter(List<Object> category, Context context) {
+    public interface RssCategoryLongClickListener {
+        void onRssCategoryLongClick(View view, int position, Object obj);
+    }
+
+    public SubscribedAdapter(List<SubscribedItem> category, Context context) {
         this.mRssCategoryList = category;
         this.mContext = context;
     }
 
     public void setRssCategoryClickListener(RssCategoryClickListener rssCategoryClickListener) {
         mRssCategoryClickListener = rssCategoryClickListener;
+    }
+
+    public void setmRssCategoryLongClickListener(RssCategoryLongClickListener mRssCategoryLongClickListener) {
+        this.mRssCategoryLongClickListener = mRssCategoryLongClickListener;
     }
 
     @Override
@@ -38,12 +50,12 @@ public class RssCategoryAdapter extends RecyclerView.Adapter<RssCategoryAdapter.
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        Object rss = mRssCategoryList.get(position);
-        if (rss instanceof RssCategory) {
-            RssCategory category = (RssCategory) rss;
+        SubscribedItem rss = mRssCategoryList.get(position);
+        if(rss instanceof SubscribedFolder){
+            SubscribedFolder folder = (SubscribedFolder) rss;
             holder.mIconItem.setImageResource(R.drawable.rss_folder);
-            holder.mRssName.setText(category.getName());
-        } else if (rss instanceof RssChannel) {
+            holder.mRssName.setText(folder.getName());
+        }else if (rss instanceof RssChannel){
             RssChannel channel = (RssChannel) rss;
             holder.mIconItem.setImageResource(R.drawable.rss_icon);
             holder.mRssName.setText(channel.getTitle());
@@ -55,22 +67,29 @@ public class RssCategoryAdapter extends RecyclerView.Adapter<RssCategoryAdapter.
         return mRssCategoryList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder{
         public TextView mRssName;
         public ImageView mIconItem;
-        public ImageButton mIconRemove;
 
         public ViewHolder(View view) {
             super(view);
             mRssName = (TextView) view.findViewById(R.id.rss_name);
             mIconItem = (ImageView) view.findViewById(R.id.rss_icon);
-            mIconRemove = (ImageButton) view.findViewById(R.id.rss_remove);
 
             mRssName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
                     mRssCategoryClickListener.onRssCategoryClick(view, position, mRssCategoryList.get(position));
+                }
+            });
+
+            mRssName.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    int position = getAdapterPosition();
+                    mRssCategoryLongClickListener.onRssCategoryLongClick(view, position, mRssCategoryList.get(position));
+                    return true;
                 }
             });
 
@@ -81,14 +100,15 @@ public class RssCategoryAdapter extends RecyclerView.Adapter<RssCategoryAdapter.
                     mRssCategoryClickListener.onRssCategoryClick(view, position, mRssCategoryList.get(position));
                 }
             });
-            mIconRemove.setOnClickListener(new View.OnClickListener() {
+
+            mIconItem.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
-                public void onClick(View view) {
+                public boolean onLongClick(View view) {
                     int position = getAdapterPosition();
-                    mRssCategoryClickListener.onRssCategoryClick(view, position, mRssCategoryList.get(position));
+                    mRssCategoryLongClickListener.onRssCategoryLongClick(view, position, mRssCategoryList.get(position));
+                    return true;
                 }
             });
-
         }
     }
 }

@@ -10,12 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.List;
 
 public class RssChannelListFragment extends Fragment {
     private RecyclerView mRssChannelRecycler;
     private ProgressBar mProgressBar;
+
 
     public RssChannelListFragment() {
         // Required empty public constructor

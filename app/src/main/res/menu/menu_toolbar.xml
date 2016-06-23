@@ -7,6 +7,11 @@
         android:title="Subscribe"
         app:showAsAction="ifRoom"/>
     <item
+        android:id="@+id/action_add_folder"
+        android:icon="@drawable/ic_add_white_48dp"
+        android:title="Add Folder"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/action_bookmark"
         android:icon="@drawable/ic_bookmark_border_white_48dp"
         android:title="Bookmark"

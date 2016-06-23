@@ -28,6 +28,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.io.DataInput;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements
@@ -35,7 +36,11 @@ public class MainActivity extends AppCompatActivity implements
         SignUpFragment.OnSignUpListener,
         RssItemAdapter.RssItemClickListener,
         RssChannelAdapter.RssChannelClickListener,
-        RssCategoryAdapter.RssCategoryClickListener {
+        SubscribedAdapter.RssCategoryClickListener,
+        SubscribedAdapter.RssCategoryLongClickListener{
+
+    private SubscribedFolder mCurrentFolder;
+    private SubscribedFolder mRoot;
 
     private DrawerLayout mDrawerLayout;
     private Toolbar mToolbar;
@@ -98,6 +103,9 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
+
+        //Dummy test /// Need to change here by connect and get database !!!!!!!!
+        mRoot = DummyData.getRoot();
     }
 
     @Override
@@ -106,6 +114,12 @@ public class MainActivity extends AppCompatActivity implements
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        //Dummy back
+        super.onBackPressed();
     }
 
     private void handleIntent(Intent intent) {
@@ -204,11 +218,13 @@ public class MainActivity extends AppCompatActivity implements
                 rssItemListFragment.setRssList(DummyData.getTodayFeeds());
                 break;
             case R.id.nav_manage_subscription:
-                fragment = (RssCategoryListFragment) RssCategoryListFragment.newInstance();
+                mCurrentFolder = mRoot;
+                SubscribedFolder subscribedItem = mCurrentFolder;
+                fragment = (SubscribedListFragment) SubscribedListFragment.newInstance(subscribedItem.getPath());
                 mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
                 mFragmentManager.executePendingTransactions();
-                RssCategoryListFragment rssCategoryListFragment = (RssCategoryListFragment) fragment;
-                rssCategoryListFragment.setRssCategoryList(DummyData.getCategory(DummyData.getMyCategory()));
+                SubscribedListFragment rssCategoryListFragment = (SubscribedListFragment) fragment;
+                rssCategoryListFragment.setRssCategoryList(subscribedItem.getItemsList());
                 break;
             case R.id.nav_sign_out:
                 FirebaseAuth.getInstance().signOut();
@@ -238,8 +254,40 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
+        }else{
+            switch(item.getItemId()){
+                case R.id.action_add_folder:
+                    handleCreateFolderInSubscribedItems(mCurrentFolder);
+                    return true;
+                case R.id.action_bookmark:
+
+                    return true;
+                default:
+                    return super.onOptionsItemSelected(item);
+            }
         }
-        return super.onOptionsItemSelected(item);
+    }
+
+    private void handleCreateFolderInSubscribedItems(final SubscribedFolder folder){
+
+        //Show dialog here to input your folder name
+        DialogInput input = new DialogInput("Folder name: ","",this);
+        input.showDialog();
+
+        //When it Ok
+        input.setOnDialogInputSuccessListener(new DialogInput.OnDialogInputSuccessListener() {
+            @Override
+            public void onDialogInputSuccess(String name) {
+                if(folder.addItem(new SubscribedFolder(name))) {
+                    Toast.makeText(MainActivity.this, "Create folder " + name + " successfully.", Toast.LENGTH_SHORT).show();
+                    onRssCategoryClick(null,-1,folder);
+                }
+                else
+                    Toast.makeText(MainActivity.this, "Folder " + name + " is existed.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //When it Cancel, do nothing
     }
 
     @Override
@@ -247,6 +295,7 @@ public class MainActivity extends AppCompatActivity implements
         menu.findItem(R.id.action_subscribe).setVisible(false);
         menu.findItem(R.id.action_share).setVisible(false);
         menu.findItem(R.id.action_bookmark).setVisible(false);
+        menu.findItem(R.id.action_add_folder).setVisible(false);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -349,31 +398,41 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onRssCategoryClick(View view, int position, Object obj) {
-        if (view instanceof ImageButton) {
-            //When select the remove item button
-            if (obj instanceof RssChannel) {
-                RssChannel channel = (RssChannel) obj;
-                Toast.makeText(MainActivity.this, "Remove channel: " + channel.getTitle() + " from category", Toast.LENGTH_SHORT).show();
-            } else if (obj instanceof RssCategory) {
-                RssCategory category = (RssCategory) obj;
-                Toast.makeText(MainActivity.this, "Remove category: " + category.getName() + " from category", Toast.LENGTH_SHORT).show();
-            } else {
-                //Nothing todo here.
-            }
-        } else {
-            if (obj instanceof RssChannel) {
-                RssChannel channel = (RssChannel) obj;
-                onRssChannelClick(new TextView(this), position, channel);
-            } else if (obj instanceof RssCategory) {
-                RssCategory category = (RssCategory) obj;
-                Fragment fragment = (RssCategoryListFragment) RssCategoryListFragment.newInstance();
-                mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
-                mFragmentManager.executePendingTransactions();
-                RssCategoryListFragment rssCategoryListFragment = (RssCategoryListFragment) fragment;
-                rssCategoryListFragment.setRssCategoryList(DummyData.getCategory(category));
-            } else {
-                //Do something else
-            }
+        if(obj instanceof RssChannel) {
+            RssChannel channel = (RssChannel) obj;
+            onRssChannelClick(new TextView(this), position, channel);
         }
+        else if(obj instanceof SubscribedFolder){
+            mCurrentFolder = (SubscribedFolder) obj;
+            SubscribedFolder folder = mCurrentFolder;
+            Fragment fragment = SubscribedListFragment.newInstance(folder.getPath());
+            mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
+            mFragmentManager.executePendingTransactions();
+            SubscribedListFragment rssCategoryListFragment = (SubscribedListFragment) fragment;
+            rssCategoryListFragment.setRssCategoryList(folder.getItemsList());
+        }
+
+        else{
+            //Do something else
+        }
+
+    }
+
+    @Override
+    public void onRssCategoryLongClick(View view, int position, Object obj) {
+        final SubscribedItem item = (SubscribedItem) obj;
+        //Show the dialog
+        DialogQuestion dialogQuestion = new DialogQuestion(this,"Remove " + item.getName() + "?","" );
+        dialogQuestion.showDialog();
+
+        //when ok
+        dialogQuestion.setOnDialogQuestionSuccessListener(new DialogQuestion.OnDialogQuestionSuccessListener() {
+            @Override
+            public void onDialogQuestionSuccess() {
+                mCurrentFolder.removeItem(item.getName());
+                Toast.makeText(MainActivity.this, "Removed " + item.getName(), Toast.LENGTH_SHORT).show();
+                onRssCategoryClick(null,-1,mCurrentFolder);
+            }
+        });
     }
 }
