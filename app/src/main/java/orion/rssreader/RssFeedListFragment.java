@@ -18,6 +18,7 @@ public class RssFeedListFragment extends Fragment {
     private ProgressBar mProgressBar;
     private boolean mSubscribeEnabled;
     private static final String SUBSCRIBE_ENABLED_KEY = "SUBSCRIBE_ENABLED_KEY";
+    private RssChannel mRssChannel;
 
     public interface OnRssItemClickListener {
         void onItemClick(View view, int position, RssFeed item);
@@ -58,9 +59,8 @@ public class RssFeedListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        mSubscribeEnabled = getArguments().getBoolean(SUBSCRIBE_ENABLED_KEY, false);
         if (getArguments() != null) {
-
+            mSubscribeEnabled = getArguments().getBoolean(SUBSCRIBE_ENABLED_KEY, false);
         }
     }
 

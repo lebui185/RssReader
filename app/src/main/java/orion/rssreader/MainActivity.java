@@ -23,16 +23,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements
         RssFeedAdapter.RssItemClickListener,
         RssChannelAdapter.RssChannelClickListener,
-        SubscribedAdapter.RssCategoryClickListener,
-        SubscribedAdapter.RssCategoryLongClickListener {
+        SubscribedItemAdapter.OnSubsribedItemClickListener,
+        SubscribedItemAdapter.OnSubscribedItemLongClickListener {
 
-    private SubscribedFolder mCurrentFolder;
-    private SubscribedFolder mRoot;
+    private DataAdapter mDataAdapter;
 
     private DrawerLayout mDrawerLayout;
     private Toolbar mToolbar;
@@ -42,11 +40,16 @@ public class MainActivity extends AppCompatActivity implements
 
     private RssChannelListFragment mRssChannelListFragment;
     private RssFeedListFragment mRssFeedListFragment;
+    private SubscribedListFragment mSubscribedListFragment;
+
+    private int mCurrentId;
+    private RssChannel mCurrentChannel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mDataAdapter = new DataAdapter(this);
 
         setupWidgets();
         setSupportActionBar(mToolbar);
@@ -66,8 +69,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        //Dummy test /// Need to change here by connect and get database !!!!!!!!
-        mRoot = DummyData.getRoot();
     }
 
     @Override
@@ -164,14 +165,13 @@ public class MainActivity extends AppCompatActivity implements
                 RssFeedListFragment rssFeedListFragment = (RssFeedListFragment) fragment;
                 rssFeedListFragment.setRssList(DummyData.getTodayFeeds());
                 break;
-            case R.id.nav_manage_subscription:
-                mCurrentFolder = mRoot;
-                SubscribedFolder subscribedItem = mCurrentFolder;
-                fragment = SubscribedListFragment.newInstance(subscribedItem.getPath());
+            case R.id.nav_subscribing:
+                fragment = SubscribedListFragment.newInstance(false, true);
                 mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
                 mFragmentManager.executePendingTransactions();
-                SubscribedListFragment rssCategoryListFragment = (SubscribedListFragment) fragment;
-                rssCategoryListFragment.setRssCategoryList(subscribedItem.getItemsList());
+                mSubscribedListFragment = (SubscribedListFragment) fragment;
+                mSubscribedListFragment.setSubscribedItemList(mDataAdapter.getChildren(-1));
+                mCurrentId = -1;
                 break;
         }
 
@@ -200,11 +200,26 @@ public class MainActivity extends AppCompatActivity implements
             return true;
         } else {
             switch (item.getItemId()) {
+                case R.id.action_ok:
+                    int id = (int) mDataAdapter.createSubscribeChannel(mCurrentId, mCurrentChannel);
+                    mCurrentChannel.setId(id);
+                    mSubscribedListFragment.addItem(mCurrentChannel);
+                    Toast.makeText(MainActivity.this, "Channel subscribed", Toast.LENGTH_SHORT).show();
+                    return true;
+                case R.id.action_up:
+                    if (mCurrentId != -1) {
+                        mCurrentId = mDataAdapter.getParentId(mCurrentId);
+                        mSubscribedListFragment.setSubscribedItemList(mDataAdapter.getChildren(mCurrentId));
+                    }
+                    return true;
                 case R.id.action_add_folder:
-                    handleCreateFolderInSubscribedItems(mCurrentFolder);
+                    handleCreateFolderInSubscribedItems();
                     return true;
                 case R.id.action_bookmark:
 
+                    return true;
+                case R.id.action_subscribe:
+                    startSubscribing();
                     return true;
                 default:
                     return super.onOptionsItemSelected(item);
@@ -212,7 +227,16 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private void handleCreateFolderInSubscribedItems(final SubscribedFolder folder) {
+    private void startSubscribing() {
+        setTitle("Choose folder");
+        mSubscribedListFragment = SubscribedListFragment.newInstance(true, true);
+        mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, mSubscribedListFragment).commit();
+        mFragmentManager.executePendingTransactions();
+        mCurrentId = -1;
+        mSubscribedListFragment.setSubscribedItemList(mDataAdapter.getChildren(mCurrentId));
+    }
+
+    private void handleCreateFolderInSubscribedItems() {
 
         //Show dialog here to input your folder name
         DialogInput input = new DialogInput("Folder name: ", "", this);
@@ -222,11 +246,10 @@ public class MainActivity extends AppCompatActivity implements
         input.setOnDialogInputSuccessListener(new DialogInput.OnDialogInputSuccessListener() {
             @Override
             public void onDialogInputSuccess(String name) {
-                if (folder.addItem(new SubscribedFolder(name))) {
-                    Toast.makeText(MainActivity.this, "Create folder " + name + " successfully.", Toast.LENGTH_SHORT).show();
-                    onRssCategoryClick(null, -1, folder);
-                } else
-                    Toast.makeText(MainActivity.this, "Folder " + name + " is existed.", Toast.LENGTH_SHORT).show();
+                SubscribedFolder folder = new SubscribedFolder(name);
+                int id = (int) mDataAdapter.createFolder(mCurrentId, folder);
+                folder.setId(id);
+                mSubscribedListFragment.addItem(folder);
             }
         });
 
@@ -235,6 +258,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_ok).setVisible(false);
+        menu.findItem(R.id.action_up).setVisible(false);
         menu.findItem(R.id.action_subscribe).setVisible(false);
         menu.findItem(R.id.action_share).setVisible(false);
         menu.findItem(R.id.action_bookmark).setVisible(false);
@@ -244,10 +269,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onRssItemClick(View view, int position, RssFeed item) {
-//        RssFeedDetailFragment detailFragment = RssFeedDetailFragment.newInstance();
-//        mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, detailFragment).commit();
-//        mFragmentManager.executePendingTransactions();
-//        detailFragment.setRss(item);
         WebViewFragment webFragment = WebViewFragment.newInstance();
         mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, webFragment).commit();
         mFragmentManager.executePendingTransactions();
@@ -256,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onRssChannelClick(View view, int position, RssChannel channel) {
+        mCurrentChannel = channel;
         if (view instanceof TextView) {
             mRssFeedListFragment = RssFeedListFragment.newInstance(true);
             mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, mRssFeedListFragment).commit();
@@ -282,43 +304,36 @@ public class MainActivity extends AppCompatActivity implements
 
             fetchRssFeedTask.execute();
         } else if (view instanceof ImageButton) {
-            Toast.makeText(MainActivity.this, "Add channel " + position + " to bookmark", Toast.LENGTH_SHORT).show();
+            startSubscribing();
         }
     }
 
     @Override
-    public void onRssCategoryClick(View view, int position, Object obj) {
-        if (obj instanceof RssChannel) {
-            RssChannel channel = (RssChannel) obj;
-            onRssChannelClick(new TextView(this), position, channel);
-        } else if (obj instanceof SubscribedFolder) {
-            mCurrentFolder = (SubscribedFolder) obj;
-            SubscribedFolder folder = mCurrentFolder;
-            Fragment fragment = SubscribedListFragment.newInstance(folder.getPath());
-            mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
-            mFragmentManager.executePendingTransactions();
-            SubscribedListFragment rssCategoryListFragment = (SubscribedListFragment) fragment;
-            rssCategoryListFragment.setRssCategoryList(folder.getItemsList());
-        } else {
-            //Do something else
+    public void onSubscribedItemClick(View view, int position, SubscribedItem item) {
+        if (item instanceof RssChannel) {
+            RssChannel channel = mDataAdapter.getChannel(item.getId());
+            onRssChannelClick(view, position, channel);
+        } else if (item instanceof SubscribedFolder) {
+            mCurrentId = item.getId();
+            mSubscribedListFragment.setSubscribedItemList(mDataAdapter.getChildren(mCurrentId));
         }
-
     }
 
     @Override
-    public void onRssCategoryLongClick(View view, int position, Object obj) {
-        final SubscribedItem item = (SubscribedItem) obj;
+    public void onSubscribedItemLongClick(View view, int position, SubscribedItem item) {
         //Show the dialog
         DialogQuestion dialogQuestion = new DialogQuestion(this, "Remove " + item.getName() + "?", "");
         dialogQuestion.showDialog();
+
+        final SubscribedItem _item = item;
 
         //when ok
         dialogQuestion.setOnDialogQuestionSuccessListener(new DialogQuestion.OnDialogQuestionSuccessListener() {
             @Override
             public void onDialogQuestionSuccess() {
-                mCurrentFolder.removeItem(item.getName());
-                Toast.makeText(MainActivity.this, "Removed " + item.getName(), Toast.LENGTH_SHORT).show();
-                onRssCategoryClick(null, -1, mCurrentFolder);
+                mDataAdapter.removeItem(_item.getId());
+                mSubscribedListFragment.removeItem(_item);
+                Toast.makeText(MainActivity.this, "Removed " + _item.getName(), Toast.LENGTH_SHORT).show();
             }
         });
     }

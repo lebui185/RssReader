@@ -8,36 +8,35 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
-/**
- * Created by Ho Vu Anh Khoa on 22/06/2016.
- */
-public class SubscribedAdapter extends RecyclerView.Adapter<SubscribedAdapter.ViewHolder> {
+public class SubscribedItemAdapter extends RecyclerView.Adapter<SubscribedItemAdapter.ViewHolder> {
     private Context mContext;
-    private List<SubscribedItem> mRssCategoryList;
-    private RssCategoryClickListener mRssCategoryClickListener;
-    private RssCategoryLongClickListener mRssCategoryLongClickListener;
+    private List<SubscribedItem> mSubscribedItemList;
+    private OnSubsribedItemClickListener mOnSubsribedItemClickListener;
+    private OnSubscribedItemLongClickListener mOnSubscribedItemLongClickListener;
 
-    public interface RssCategoryClickListener {
-        void onRssCategoryClick(View view, int position, Object obj);
+    public interface OnSubsribedItemClickListener {
+        void onSubscribedItemClick(View view, int position, SubscribedItem item);
     }
 
-    public interface RssCategoryLongClickListener {
-        void onRssCategoryLongClick(View view, int position, Object obj);
+    public interface OnSubscribedItemLongClickListener {
+        void onSubscribedItemLongClick(View view, int position, SubscribedItem item);
     }
 
-    public SubscribedAdapter(List<SubscribedItem> category, Context context) {
-        this.mRssCategoryList = category;
+    public SubscribedItemAdapter(List<SubscribedItem> items, Context context) {
+        this.mSubscribedItemList = items;
         this.mContext = context;
     }
 
-    public void setRssCategoryClickListener(RssCategoryClickListener rssCategoryClickListener) {
-        mRssCategoryClickListener = rssCategoryClickListener;
+    public void setOnSubsribedItemClickListener(OnSubsribedItemClickListener onSubsribedItemClickListener) {
+        mOnSubsribedItemClickListener = onSubsribedItemClickListener;
     }
 
-    public void setmRssCategoryLongClickListener(RssCategoryLongClickListener mRssCategoryLongClickListener) {
-        this.mRssCategoryLongClickListener = mRssCategoryLongClickListener;
+    public void setmRssCategoryLongClickListener(OnSubscribedItemLongClickListener onSubscribedItemLongClickListener) {
+        this.mOnSubscribedItemLongClickListener = onSubscribedItemLongClickListener;
     }
 
     @Override
@@ -49,21 +48,21 @@ public class SubscribedAdapter extends RecyclerView.Adapter<SubscribedAdapter.Vi
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        SubscribedItem rss = mRssCategoryList.get(position);
+        SubscribedItem rss = mSubscribedItemList.get(position);
         if (rss instanceof SubscribedFolder) {
             SubscribedFolder folder = (SubscribedFolder) rss;
-            holder.mIconItem.setImageResource(R.drawable.rss_folder);
+            holder.mIconItem.setImageResource(R.drawable.ic_folder_black_48dp);
             holder.mRssName.setText(folder.getName());
         } else if (rss instanceof RssChannel) {
             RssChannel channel = (RssChannel) rss;
-            holder.mIconItem.setImageResource(R.drawable.rss_icon);
             holder.mRssName.setText(channel.getTitle());
+            Picasso.with(mContext).load(channel.getIconUrl()).into(holder.mIconItem);
         }
     }
 
     @Override
     public int getItemCount() {
-        return mRssCategoryList.size();
+        return mSubscribedItemList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -73,13 +72,13 @@ public class SubscribedAdapter extends RecyclerView.Adapter<SubscribedAdapter.Vi
         public ViewHolder(View view) {
             super(view);
             mRssName = (TextView) view.findViewById(R.id.rss_name);
-            mIconItem = (ImageView) view.findViewById(R.id.rss_icon);
+            mIconItem = (ImageView) view.findViewById(R.id.subscribed_item_image);
 
             mRssName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
-                    mRssCategoryClickListener.onRssCategoryClick(view, position, mRssCategoryList.get(position));
+                    mOnSubsribedItemClickListener.onSubscribedItemClick(view, position, mSubscribedItemList.get(position));
                 }
             });
 
@@ -87,7 +86,7 @@ public class SubscribedAdapter extends RecyclerView.Adapter<SubscribedAdapter.Vi
                 @Override
                 public boolean onLongClick(View view) {
                     int position = getAdapterPosition();
-                    mRssCategoryLongClickListener.onRssCategoryLongClick(view, position, mRssCategoryList.get(position));
+                    mOnSubscribedItemLongClickListener.onSubscribedItemLongClick(view, position, mSubscribedItemList.get(position));
                     return true;
                 }
             });
@@ -96,7 +95,7 @@ public class SubscribedAdapter extends RecyclerView.Adapter<SubscribedAdapter.Vi
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
-                    mRssCategoryClickListener.onRssCategoryClick(view, position, mRssCategoryList.get(position));
+                    mOnSubsribedItemClickListener.onSubscribedItemClick(view, position, mSubscribedItemList.get(position));
                 }
             });
 
@@ -104,7 +103,7 @@ public class SubscribedAdapter extends RecyclerView.Adapter<SubscribedAdapter.Vi
                 @Override
                 public boolean onLongClick(View view) {
                     int position = getAdapterPosition();
-                    mRssCategoryLongClickListener.onRssCategoryLongClick(view, position, mRssCategoryList.get(position));
+                    mOnSubscribedItemLongClickListener.onSubscribedItemLongClick(view, position, mSubscribedItemList.get(position));
                     return true;
                 }
             });

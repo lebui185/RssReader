@@ -2,13 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_up"
+        android:icon="@drawable/ic_action_up"
+        android:title="Up"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/action_subscribe"
         android:icon="@drawable/ic_add_white_48dp"
         android:title="Subscribe"
         app:showAsAction="ifRoom"/>
     <item
+        android:id="@+id/action_ok"
+        android:icon="@drawable/ic_action_ok"
+        android:title="OK"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/action_add_folder"
-        android:icon="@drawable/ic_add_white_48dp"
+        android:icon="@drawable/ic_create_new_folder_white_48dp"
         android:title="Add Folder"
         app:showAsAction="ifRoom"/>
     <item

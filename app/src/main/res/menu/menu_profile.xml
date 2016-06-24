@@ -11,7 +11,7 @@
             android:id="@+id/nav_bookmark"
             android:title="Bookmark"/>
         <item
-            android:id="@+id/nav_manage_subscription"
-            android:title="Manage Subscription" />
+            android:id="@+id/nav_subscribing"
+            android:title="Subscribing" />
     </group>
 </menu>

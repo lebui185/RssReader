@@ -5,15 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Ho Vu Anh Khoa on 23/06/2016.
- */
 public class SubscribedFolder extends SubscribedItem {
     String mTitle;
-    Map<String, SubscribedItem> itemList = new HashMap<>();
+    Map<String, SubscribedItem> mChildren;
 
     public SubscribedFolder(String title) {
         this.mTitle = title;
+        mChildren = new HashMap<>();
     }
 
     public String getTitle() {
@@ -25,31 +23,31 @@ public class SubscribedFolder extends SubscribedItem {
     }
 
     public boolean addItem(SubscribedItem item) {
-        if (item != null && !itemList.containsKey(item.getName())) {
-            itemList.put(item.getName(), item);
-            item.setParentItem(this);
+        if (item != null && !mChildren.containsKey(item.getName())) {
+            mChildren.put(item.getName(), item);
+            item.setParent(this);
             return true;
         }
         return false;
     }
 
     public boolean removeItem(String name) {
-        if (itemList.containsKey(name)) {
-            itemList.remove(name);
+        if (mChildren.containsKey(name)) {
+            mChildren.remove(name);
             return true;
         }
         return false;
     }
 
     public SubscribedItem getItem(String name) {
-        if (itemList.containsKey(name)) {
-            return itemList.get(name);
+        if (mChildren.containsKey(name)) {
+            return mChildren.get(name);
         }
         return null;
     }
 
     public List<SubscribedItem> getItemsList() {
-        return new ArrayList<>(itemList.values());
+        return new ArrayList<>(mChildren.values());
     }
 
     @Override

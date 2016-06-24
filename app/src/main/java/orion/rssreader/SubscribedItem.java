@@ -1,25 +1,30 @@
 package orion.rssreader;
 
-/**
- * Created by Ho Vu Anh Khoa on 23/06/2016.
- */
 public abstract class SubscribedItem {
+    public int getId() {
+        return id;
+    }
 
-    SubscribedItem parentItem;
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    protected int id;
+    protected SubscribedItem parent;
 
     public String getPath() {
-        if (parentItem != null) {
-            return parentItem.getPath() + "\\" + getName();
+        if (parent != null) {
+            return parent.getPath() + "\\" + getName();
         }
         return getName();
     }
 
-    public SubscribedItem getParentItem() {
-        return parentItem;
+    public SubscribedItem getParent() {
+        return parent;
     }
 
-    public void setParentItem(SubscribedItem parentItem) {
-        this.parentItem = parentItem;
+    public void setParent(SubscribedItem parent) {
+        this.parent = parent;
     }
 
     public abstract String getName();
