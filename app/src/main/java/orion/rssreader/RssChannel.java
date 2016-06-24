@@ -1,6 +1,6 @@
 package orion.rssreader;
 
-public class RssChannel extends SubscribedItem{
+public class RssChannel extends SubscribedItem {
     private String feedId;
     private String title;
     private String website;

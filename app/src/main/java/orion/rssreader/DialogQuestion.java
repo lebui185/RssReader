@@ -9,7 +9,7 @@ import android.support.v7.app.AlertDialog;
  */
 public class DialogQuestion {
 
-    public interface OnDialogQuestionSuccessListener{
+    public interface OnDialogQuestionSuccessListener {
         void onDialogQuestionSuccess();
     }
 
@@ -32,7 +32,7 @@ public class DialogQuestion {
         this.mContext = context;
     }
 
-    public DialogQuestion(Context context, String title, String message,String yesAnswer, String noAnswer) {
+    public DialogQuestion(Context context, String title, String message, String yesAnswer, String noAnswer) {
         this.mTitle = title;
         this.mMessage = message;
         this.mContext = context;
@@ -40,7 +40,7 @@ public class DialogQuestion {
         this.mNoAnswer = noAnswer;
     }
 
-    public void showDialog(){
+    public void showDialog() {
         AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
 
         alert.setTitle(mTitle);
@@ -48,7 +48,7 @@ public class DialogQuestion {
 
         alert.setPositiveButton(mYesAnswer, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                if(onDialogQuestionSuccessListener != null){
+                if (onDialogQuestionSuccessListener != null) {
                     onDialogQuestionSuccessListener.onDialogQuestionSuccess();
                 }
             }
@@ -56,7 +56,7 @@ public class DialogQuestion {
 
         alert.setNegativeButton(mNoAnswer, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                if(onDialogQuestionFailListener != null){
+                if (onDialogQuestionFailListener != null) {
                     onDialogQuestionFailListener.onDialogQuestionFail();
                 }
             }

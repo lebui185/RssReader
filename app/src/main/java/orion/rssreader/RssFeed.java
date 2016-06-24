@@ -2,17 +2,17 @@ package orion.rssreader;
 
 // dummy RSS item
 
-public class RssItem {
+public class RssFeed {
     private int mImageResource;
     private String mTitle;
     private String mLink;
     private String mDescription;
 
-    public RssItem() {
+    public RssFeed() {
 
     }
 
-    public RssItem(int mImageResource, String mTitle, String mDescription, String mLink) {
+    public RssFeed(int mImageResource, String mTitle, String mDescription, String mLink) {
         this.mImageResource = mImageResource;
         this.mTitle = mTitle;
         this.mDescription = mDescription;

@@ -7,8 +7,8 @@ public abstract class SubscribedItem {
 
     SubscribedItem parentItem;
 
-    public String getPath(){
-        if(parentItem != null){
+    public String getPath() {
+        if (parentItem != null) {
             return parentItem.getPath() + "\\" + getName();
         }
         return getName();

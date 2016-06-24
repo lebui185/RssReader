@@ -5,7 +5,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -51,11 +50,11 @@ public class SubscribedAdapter extends RecyclerView.Adapter<SubscribedAdapter.Vi
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         SubscribedItem rss = mRssCategoryList.get(position);
-        if(rss instanceof SubscribedFolder){
+        if (rss instanceof SubscribedFolder) {
             SubscribedFolder folder = (SubscribedFolder) rss;
             holder.mIconItem.setImageResource(R.drawable.rss_folder);
             holder.mRssName.setText(folder.getName());
-        }else if (rss instanceof RssChannel){
+        } else if (rss instanceof RssChannel) {
             RssChannel channel = (RssChannel) rss;
             holder.mIconItem.setImageResource(R.drawable.rss_icon);
             holder.mRssName.setText(channel.getTitle());
@@ -67,7 +66,7 @@ public class SubscribedAdapter extends RecyclerView.Adapter<SubscribedAdapter.Vi
         return mRssCategoryList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView mRssName;
         public ImageView mIconItem;
 

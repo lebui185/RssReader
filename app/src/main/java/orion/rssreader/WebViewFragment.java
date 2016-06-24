@@ -1,25 +1,15 @@
 package orion.rssreader;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import java.util.List;
-
-/**
- * Created by Long on 6/24/2016.
- */
-public class WebViewFragment extends Fragment{
+public class WebViewFragment extends Fragment {
     WebView wv;
 
     public WebViewFragment() {

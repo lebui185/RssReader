@@ -18,14 +18,6 @@
         android:layout_toRightOf="@id/rss_item_image"
         android:text="Title"
         android:textSize="16sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/rss_item_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/rss_item_title"
-        android:layout_toRightOf="@id/rss_item_image"
-        android:text="Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam "
-        android:textSize="16sp" />
+        android:textStyle="bold"
+        android:layout_centerVertical="true"/>
 </RelativeLayout>

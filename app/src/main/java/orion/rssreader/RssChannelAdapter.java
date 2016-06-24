@@ -6,7 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -39,6 +42,7 @@ public class RssChannelAdapter extends RecyclerView.Adapter<RssChannelAdapter.Vi
     public void onBindViewHolder(final ViewHolder holder, int position) {
         RssChannel rssChannel = mRssChannelList.get(position);
         holder.mRssChannelName.setText(rssChannel.getTitle());
+        Picasso.with(mContext).load(rssChannel.getIconUrl()).into(holder.mRssChannelImage);
     }
 
     @Override
@@ -47,6 +51,7 @@ public class RssChannelAdapter extends RecyclerView.Adapter<RssChannelAdapter.Vi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        public ImageView mRssChannelImage;
         public TextView mRssChannelName;
         public ImageButton mSubscribeChannelButton;
 
@@ -54,6 +59,7 @@ public class RssChannelAdapter extends RecyclerView.Adapter<RssChannelAdapter.Vi
             super(view);
             mRssChannelName = (TextView) view.findViewById(R.id.rss_channel_name);
             mSubscribeChannelButton = (ImageButton) view.findViewById(R.id.subscribe_channel_button);
+            mRssChannelImage = (ImageView) view.findViewById(R.id.rss_channel_image);
 
             mRssChannelName.setOnClickListener(new View.OnClickListener() {
                 @Override

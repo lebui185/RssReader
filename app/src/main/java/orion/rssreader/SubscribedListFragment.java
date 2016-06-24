@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by Ho Vu Anh Khoa on 22/06/2016.
  */
-public class SubscribedListFragment extends Fragment{
+public class SubscribedListFragment extends Fragment {
     private RecyclerView mRssCategoryRecycler;
     private TextView mTextViewPath;
     private String mPath;
@@ -28,7 +28,7 @@ public class SubscribedListFragment extends Fragment{
     public static SubscribedListFragment newInstance(String path) {
         SubscribedListFragment fragment = new SubscribedListFragment();
         Bundle args = new Bundle();
-        args.putString("PATH",path);
+        args.putString("PATH", path);
         fragment.setArguments(args);
         return fragment;
     }
@@ -46,7 +46,6 @@ public class SubscribedListFragment extends Fragment{
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mRssCategoryRecycler = (RecyclerView) getActivity().findViewById(R.id.category_recycler);
-
 
 
         mTextViewPath = (TextView) getActivity().findViewById(R.id.path);

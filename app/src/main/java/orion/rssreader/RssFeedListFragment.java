@@ -9,37 +9,47 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import java.util.List;
 
-public class RssItemListFragment extends Fragment {
+public class RssFeedListFragment extends Fragment {
     private RecyclerView mRssItemRecycler;
+    private ProgressBar mProgressBar;
     private boolean mSubscribeEnabled;
     private static final String SUBSCRIBE_ENABLED_KEY = "SUBSCRIBE_ENABLED_KEY";
 
     public interface OnRssItemClickListener {
-        void onItemClick(View view, int position, RssItem item);
+        void onItemClick(View view, int position, RssFeed item);
     }
 
-    public RssItemListFragment() {
+    public RssFeedListFragment() {
 
     }
 
-    public static RssItemListFragment newInstance() {
+    public static RssFeedListFragment newInstance() {
         return newInstance(false);
     }
 
-    public static RssItemListFragment newInstance(boolean subscribeEnabled) {
-        RssItemListFragment fragment = new RssItemListFragment();
+    public static RssFeedListFragment newInstance(boolean subscribeEnabled) {
+        RssFeedListFragment fragment = new RssFeedListFragment();
         Bundle args = new Bundle();
         args.putBoolean(SUBSCRIBE_ENABLED_KEY, subscribeEnabled);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public void setRssList(List<RssItem> items) {
-        RssItemAdapter adapter = new RssItemAdapter(items, getActivity());
-        adapter.setRssItemClickListener((RssItemAdapter.RssItemClickListener) getActivity());
+    public void showProgress() {
+        mProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    public void hideProgress() {
+        mProgressBar.setVisibility(View.GONE);
+    }
+
+    public void setRssList(List<RssFeed> items) {
+        RssFeedAdapter adapter = new RssFeedAdapter(items, getActivity());
+        adapter.setRssItemClickListener((RssFeedAdapter.RssItemClickListener) getActivity());
         mRssItemRecycler.setAdapter(adapter);
         mRssItemRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
     }
@@ -57,7 +67,7 @@ public class RssItemListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_rss_item_list, container, false);
+        return inflater.inflate(R.layout.fragment_rss_feed_list, container, false);
     }
 
     @Override
@@ -74,6 +84,7 @@ public class RssItemListFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mRssItemRecycler = (RecyclerView) getActivity().findViewById(R.id.rss_item_recycler);
+        mProgressBar = (ProgressBar) getActivity().findViewById(R.id.rss_feed_list_progressBar);
     }
 
     @Override

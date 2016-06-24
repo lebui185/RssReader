@@ -10,11 +10,11 @@ import android.widget.EditText;
  */
 public class DialogInput {
 
-    public interface OnDialogInputSuccessListener{
+    public interface OnDialogInputSuccessListener {
         void onDialogInputSuccess(String name);
     }
 
-    public interface OnDialogInputFailListener{
+    public interface OnDialogInputFailListener {
         void onDialogInputFail();
     }
 
@@ -31,7 +31,7 @@ public class DialogInput {
         this.mContext = context;
     }
 
-    public void showDialog(){
+    public void showDialog() {
         AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
 
         alert.setTitle(mTitle);
@@ -42,7 +42,7 @@ public class DialogInput {
 
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                if(onDialogInputSuccessListener != null){
+                if (onDialogInputSuccessListener != null) {
                     String name = input.getText().toString();
                     onDialogInputSuccessListener.onDialogInputSuccess(name);
                 }
@@ -51,7 +51,7 @@ public class DialogInput {
 
         alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                if(onDialogInputFailListener != null){
+                if (onDialogInputFailListener != null) {
                     onDialogInputFailListener.onDialogInputFail();
                 }
             }

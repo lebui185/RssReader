@@ -1,8 +1,6 @@
 package orion.rssreader;
 
 import android.content.Context;
-import android.os.AsyncTask;
-import android.util.Log;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -18,10 +16,7 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-/**
- * Created by Long on 6/23/2016.
- */
-public class FetchRssFeedTask extends AsyncTask<Void, Void, List<RssItem>> {
+public class FetchRssFeedTask extends BaseAsyncTask<Void, Void, List<RssFeed>> {
     Context context;
     String mAddress;
     URL url;
@@ -31,13 +26,13 @@ public class FetchRssFeedTask extends AsyncTask<Void, Void, List<RssItem>> {
     }
 
     @Override
-    protected List<RssItem> doInBackground(Void... params) {
+    protected List<RssFeed> doAsyncTask() throws Exception {
         return ProcessXml(getData());
     }
 
-    private List<RssItem> ProcessXml(Document data) {
+    private List<RssFeed> ProcessXml(Document data) {
         if (data != null) {
-            ArrayList<RssItem> list = new ArrayList<>();
+            ArrayList<RssFeed> list = new ArrayList<>();
             Element root = data.getDocumentElement();
             Node channel = root.getChildNodes().item(1);
             NodeList items = channel.getChildNodes();
@@ -57,8 +52,8 @@ public class FetchRssFeedTask extends AsyncTask<Void, Void, List<RssItem>> {
                             desc = cur.getTextContent().replaceAll(regex, "");
                         }
                     }
-                    if(title != null && link != null && desc != null) {
-                        RssItem item = new RssItem(R.drawable.rss_icon, title, desc, link);
+                    if (title != null && link != null && desc != null) {
+                        RssFeed item = new RssFeed(R.drawable.rss_icon, title, desc, link);
                         list.add(item);
                         title = desc = link = null;
                     }
@@ -69,19 +64,14 @@ public class FetchRssFeedTask extends AsyncTask<Void, Void, List<RssItem>> {
         return null;
     }
 
-    public Document getData() {
-        try {
-            url = new URL(mAddress);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            InputStream inputStream = conn.getInputStream();
-            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = builderFactory.newDocumentBuilder();
-            Document xmlDoc = builder.parse(inputStream);
-            return xmlDoc;
-        }catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public Document getData() throws Exception {
+        url = new URL(mAddress);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        InputStream inputStream = conn.getInputStream();
+        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = builderFactory.newDocumentBuilder();
+        Document xmlDoc = builder.parse(inputStream);
+        return xmlDoc;
     }
 }

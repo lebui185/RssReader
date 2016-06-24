@@ -4,7 +4,6 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -15,6 +14,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,22 +22,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
-import java.io.DataInput;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements
-        SignInFragment.OnSignInListener,
-        SignUpFragment.OnSignUpListener,
-        RssItemAdapter.RssItemClickListener,
+        RssFeedAdapter.RssItemClickListener,
         RssChannelAdapter.RssChannelClickListener,
         SubscribedAdapter.RssCategoryClickListener,
-        SubscribedAdapter.RssCategoryLongClickListener{
+        SubscribedAdapter.RssCategoryLongClickListener {
 
     private SubscribedFolder mCurrentFolder;
     private SubscribedFolder mRoot;
@@ -46,44 +37,16 @@ public class MainActivity extends AppCompatActivity implements
     private Toolbar mToolbar;
     private NavigationView mNavigationView;
     private ActionBarDrawerToggle mDrawerToggle;
-    private TextView mProfileUsername;
     private FragmentManager mFragmentManager;
 
-    private SignInFragment mSignInFragment;
-    private SignUpFragment mSignUpFragment;
     private RssChannelListFragment mRssChannelListFragment;
-
-    private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
+    private RssFeedListFragment mRssFeedListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // logic init
-        mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    mProfileUsername.setText(user.getEmail());
-                    mNavigationView.getMenu().clear();
-                    mNavigationView.inflateMenu(R.menu.menu_profile_signed_in);
-                    mDrawerLayout.openDrawer(GravityCompat.START);
-                } else {
-                    // User is signed out
-                    mProfileUsername.setText("");
-                    mNavigationView.getMenu().clear();
-                    mNavigationView.inflateMenu(R.menu.menu_profile_not_signed);
-                    mDrawerLayout.openDrawer(GravityCompat.START);
-                }
-                // ...
-            }
-        };
-        // UI init
         setupWidgets();
         setSupportActionBar(mToolbar);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
@@ -102,8 +65,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-
         //Dummy test /// Need to change here by connect and get database !!!!!!!!
         mRoot = DummyData.getRoot();
     }
@@ -111,9 +72,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStop() {
         super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
     }
 
     @Override
@@ -143,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements
             fetchRssChannelTask.setOnExceptionListener(new BaseAsyncTask.OnExceptionListener() {
                 @Override
                 public void onException(Exception exception) {
+                    mRssChannelListFragment.hideProgress();
                     Toast.makeText(MainActivity.this, "Oops! Something's wrong", Toast.LENGTH_SHORT).show();
                     exception.printStackTrace();
                 }
@@ -191,43 +150,27 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 }
         );
-
-        View navigationHeader = mNavigationView.getHeaderView(0);
-        mProfileUsername = (TextView) navigationHeader.findViewById(R.id.profile_header_username_text);
     }
 
     private void selectDrawerItem(MenuItem item) {
         Fragment fragment = null;
 
         switch (item.getItemId()) {
-            case R.id.nav_sign_in:
-                fragment = SignInFragment.newInstance();
-                mSignInFragment = (SignInFragment) fragment;
-                mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
-                break;
-            case R.id.nav_sign_up:
-                fragment = SignUpFragment.newInstance();
-                mSignUpFragment = (SignUpFragment) fragment;
-                mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
-                break;
             case R.id.nav_today:
-                fragment = (RssItemListFragment) RssItemListFragment.newInstance();
+                fragment = RssFeedListFragment.newInstance();
                 mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
                 mFragmentManager.executePendingTransactions();
-                RssItemListFragment rssItemListFragment = (RssItemListFragment) fragment;
-                rssItemListFragment.setRssList(DummyData.getTodayFeeds());
+                RssFeedListFragment rssFeedListFragment = (RssFeedListFragment) fragment;
+                rssFeedListFragment.setRssList(DummyData.getTodayFeeds());
                 break;
             case R.id.nav_manage_subscription:
                 mCurrentFolder = mRoot;
                 SubscribedFolder subscribedItem = mCurrentFolder;
-                fragment = (SubscribedListFragment) SubscribedListFragment.newInstance(subscribedItem.getPath());
+                fragment = SubscribedListFragment.newInstance(subscribedItem.getPath());
                 mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
                 mFragmentManager.executePendingTransactions();
                 SubscribedListFragment rssCategoryListFragment = (SubscribedListFragment) fragment;
                 rssCategoryListFragment.setRssCategoryList(subscribedItem.getItemsList());
-                break;
-            case R.id.nav_sign_out:
-                FirebaseAuth.getInstance().signOut();
                 break;
         }
 
@@ -254,8 +197,8 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
-        }else{
-            switch(item.getItemId()){
+        } else {
+            switch (item.getItemId()) {
                 case R.id.action_add_folder:
                     handleCreateFolderInSubscribedItems(mCurrentFolder);
                     return true;
@@ -268,21 +211,20 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private void handleCreateFolderInSubscribedItems(final SubscribedFolder folder){
+    private void handleCreateFolderInSubscribedItems(final SubscribedFolder folder) {
 
         //Show dialog here to input your folder name
-        DialogInput input = new DialogInput("Folder name: ","",this);
+        DialogInput input = new DialogInput("Folder name: ", "", this);
         input.showDialog();
 
         //When it Ok
         input.setOnDialogInputSuccessListener(new DialogInput.OnDialogInputSuccessListener() {
             @Override
             public void onDialogInputSuccess(String name) {
-                if(folder.addItem(new SubscribedFolder(name))) {
+                if (folder.addItem(new SubscribedFolder(name))) {
                     Toast.makeText(MainActivity.this, "Create folder " + name + " successfully.", Toast.LENGTH_SHORT).show();
-                    onRssCategoryClick(null,-1,folder);
-                }
-                else
+                    onRssCategoryClick(null, -1, folder);
+                } else
                     Toast.makeText(MainActivity.this, "Folder " + name + " is existed.", Toast.LENGTH_SHORT).show();
             }
         });
@@ -300,54 +242,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onSignIn(final String email, final String password) {
-        if (email != null && !email.isEmpty() && password != null && !password.isEmpty()) {
-            mSignInFragment.showProgress();
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (!task.isSuccessful()) {
-                                Toast.makeText(MainActivity.this, "Authentication failed.",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                            mSignInFragment.hideProgress();
-                        }
-                    });
-        } else {
-            Toast.makeText(MainActivity.this, "Empty email or password", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void onSignUp(final String email, final String password) {
-        if (email != null && !email.isEmpty() && password != null && !password.isEmpty()) {
-            mSignUpFragment.showProgress();
-            mAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (!task.isSuccessful()) {
-                                Toast.makeText(MainActivity.this, "Sign up failed.",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                            mSignUpFragment.hideProgress();
-                        }
-                    });
-        } else {
-            Toast.makeText(MainActivity.this, "Empty email or password", Toast.LENGTH_SHORT).show();
-        }
-
-    }
-
-    private boolean IsCorrect(String username, String password) {
-        // dummy
-        return true;
-    }
-
-    @Override
-    public void onRssItemClick(View view, int position, RssItem item) {
-//        RssItemDetailFragment detailFragment = RssItemDetailFragment.newInstance();
+    public void onRssItemClick(View view, int position, RssFeed item) {
+//        RssFeedDetailFragment detailFragment = RssFeedDetailFragment.newInstance();
 //        mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, detailFragment).commit();
 //        mFragmentManager.executePendingTransactions();
 //        detailFragment.setRss(item);
@@ -360,49 +256,41 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onRssChannelClick(View view, int position, RssChannel channel) {
         if (view instanceof TextView) {
-            RssItemListFragment fragment = RssItemListFragment.newInstance(true);
-            mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
+            mRssFeedListFragment = RssFeedListFragment.newInstance(true);
+            mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, mRssFeedListFragment).commit();
             mFragmentManager.executePendingTransactions();
-
+            mRssFeedListFragment.showProgress();
 
             FetchRssFeedTask fetchRssFeedTask = new FetchRssFeedTask(channel.getFeedId());
-//            FetchRssFeedTask.setOnCompleteListener(new BaseAsyncTask.OnCompleteListener<List<RssItem>>() {
-//                @Override
-//                public void onComplete(List<RssItem> feeds) {
-//                RssItemListFragment fragment = RssItemListFragment.newInstance(true);
-//                mFragmentManager.beginTransaction().replace(R.id.fragment_placeholder, fragment).commit();
-//                mFragmentManager.executePendingTransactions();
-//                fragment.setRssList(feeds);
-//                }
-//            });
-//
-//            fetchRssFeedTask.setOnExceptionListener(new BaseAsyncTask.OnExceptionListener() {
-//                @Override
-//                public void onException(Exception exception) {
-//                    Toast.makeText(MainActivity.this, "Oops! Something's wrong", Toast.LENGTH_SHORT).show();
-//                    exception.printStackTrace();
-//                }
-//            });
-            try {
-                fragment.setRssList(fetchRssFeedTask.execute().get());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
-        else if (view instanceof ImageButton) {
+            fetchRssFeedTask.setOnCompleteListener(new BaseAsyncTask.OnCompleteListener<List<RssFeed>>() {
+                @Override
+                public void onComplete(List<RssFeed> feeds) {
+                    mRssFeedListFragment.hideProgress();
+                    mRssFeedListFragment.setRssList(feeds);
+                }
+            });
+
+            fetchRssFeedTask.setOnExceptionListener(new BaseAsyncTask.OnExceptionListener() {
+                @Override
+                public void onException(Exception exception) {
+                    mRssFeedListFragment.hideProgress();
+                    Toast.makeText(MainActivity.this, "Oops! Something's wrong", Toast.LENGTH_SHORT).show();
+                    Log.e("EXCEPTION", exception.getMessage());
+                }
+            });
+
+            fetchRssFeedTask.execute();
+        } else if (view instanceof ImageButton) {
             Toast.makeText(MainActivity.this, "Add channel " + position + " to bookmark", Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void onRssCategoryClick(View view, int position, Object obj) {
-        if(obj instanceof RssChannel) {
+        if (obj instanceof RssChannel) {
             RssChannel channel = (RssChannel) obj;
             onRssChannelClick(new TextView(this), position, channel);
-        }
-        else if(obj instanceof SubscribedFolder){
+        } else if (obj instanceof SubscribedFolder) {
             mCurrentFolder = (SubscribedFolder) obj;
             SubscribedFolder folder = mCurrentFolder;
             Fragment fragment = SubscribedListFragment.newInstance(folder.getPath());
@@ -410,9 +298,7 @@ public class MainActivity extends AppCompatActivity implements
             mFragmentManager.executePendingTransactions();
             SubscribedListFragment rssCategoryListFragment = (SubscribedListFragment) fragment;
             rssCategoryListFragment.setRssCategoryList(folder.getItemsList());
-        }
-
-        else{
+        } else {
             //Do something else
         }
 
@@ -422,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onRssCategoryLongClick(View view, int position, Object obj) {
         final SubscribedItem item = (SubscribedItem) obj;
         //Show the dialog
-        DialogQuestion dialogQuestion = new DialogQuestion(this,"Remove " + item.getName() + "?","" );
+        DialogQuestion dialogQuestion = new DialogQuestion(this, "Remove " + item.getName() + "?", "");
         dialogQuestion.showDialog();
 
         //when ok
@@ -431,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements
             public void onDialogQuestionSuccess() {
                 mCurrentFolder.removeItem(item.getName());
                 Toast.makeText(MainActivity.this, "Removed " + item.getName(), Toast.LENGTH_SHORT).show();
-                onRssCategoryClick(null,-1,mCurrentFolder);
+                onRssCategoryClick(null, -1, mCurrentFolder);
             }
         });
     }

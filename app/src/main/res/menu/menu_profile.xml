@@ -13,8 +13,5 @@
         <item
             android:id="@+id/nav_manage_subscription"
             android:title="Manage Subscription" />
-        <item
-            android:id="@+id/nav_sign_out"
-            android:title="Sign out" />
     </group>
 </menu>
