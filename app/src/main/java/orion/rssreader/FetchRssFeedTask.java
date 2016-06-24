@@ -34,7 +34,8 @@ public class FetchRssFeedTask extends BaseAsyncTask<Void, Void, List<RssFeed>> {
         if (data != null) {
             ArrayList<RssFeed> list = new ArrayList<>();
             Element root = data.getDocumentElement();
-            Node channel = root.getChildNodes().item(1);
+            NodeList channels = root.getElementsByTagName("channel");
+            Node channel = channels.item(0);
             NodeList items = channel.getChildNodes();
             for (int i = 0; i < items.getLength(); i++) {
                 Node curChild = items.item(i);
